@@ -1,0 +1,227 @@
+#!@PERL_EXECUTABLE@ -w
+
+#######################################################################
+#
+# cdp-listend
+#
+# Copyright (c) 2003 EU DataGrid project.  All rights reserved.
+# For license conditions see file LICENSE or
+# <http://www.eu-datagrid.org/license.html>
+#
+#######################################################################
+
+#
+# Beginning sequence for EDG initialization
+#
+BEGIN {
+  # use perl libs in @QTTR_PERLLIB@
+  unshift(@INC, '@QTTR_PERLLIB@');
+  unshift(@INC,'/opt/edg/lib/perl');
+}
+
+
+use strict;
+use IO::Socket;
+use IO::Select;
+use POSIX;
+use Sys::Syslog qw( :DEFAULT setlogsock);
+use AppConfig;
+
+#######################################################################
+# configuration variables
+#######################################################################
+
+my $NULL = undef;
+my $hostname = undef;
+my $myaddr = undef;
+my @my_ip = undef;
+my $my_ip_addr = undef;
+my $port = undef;
+my $s= undef;
+my $pid = undef;
+my $ip1 = undef;
+my $r_ipaddr = undef;
+my $r_host = undef;
+my $newmsg = undef;
+my $priority = undef;
+my $msg = undef;
+my $fetch = undef;
+my $nch   = undef;
+my $fetch_smear = undef;
+my $nch_smear = undef;
+
+my $fetch_def  = "@QTTR_SBIN@/ccm-fetch";
+my $nch_def    = "@QTTR_SBIN@/cdbsync-nch";
+my $config_def = "@QTTR_ETC@/cdp-listend.conf";
+my $port_def   = 7777;
+my $fetch_smear_def  = 300;
+my $nch_smear_def    = 0;
+
+my $config = AppConfig->new({
+    PEDANTIC => 1,
+    CASE   => 1,
+});
+
+$config->define("help|h!",
+		"config|c=s",{DEFAULT=>$config_def},
+		"port|p=i",{DEFAULT=>$port_def},
+		"fetch|f=s",{DEFAULT=>$fetch_def},
+		"nch|n=s",{DEFAULT=>$nch_def},
+		"fetch_smear=i",{DEFAULT=>$fetch_smear_def},
+		"nch_smear=i",{DEFAULT=>$nch_smear_def},
+		);
+if (!($config->getopt()) || $config->get("help")) {
+print "usage: $0 [OPTIONS]
+  -h, --help              print this message
+  -c, --config=FILE       config file location
+  -p, --port=PORT         listen port number 
+  -f, --fetch=PROG        ccm-fetch program
+  -n, --nch=PROG          nch program
+  --fetch_smear=SECONDS   fetch run smearing time
+  --nch_smear=SECONDS     nch run smearing time\n"; 
+  exit(1);
+}
+
+print "config: " . $config->config() . "\n";
+
+if (-f $config->config()) {
+    $config->file($config->config());
+}
+
+$port        = $config->port();
+$fetch       = $config->fetch();
+$nch         = $config->nch();
+$fetch_smear = $config->fetch_smear();
+$nch_smear   = $config->nch_smear();
+
+
+$s = new IO::Select;
+
+chop($hostname = `hostname`);
+if ($hostname =~ /(localhost)+\.*(localdomain)*/) {
+    logit('err',"Exiting: hostname set to $hostname: $!");
+    die "Hostname incorrectly set as $hostname\n";
+}
+
+(undef,undef,undef,undef,$myaddr) = gethostbyname($hostname);
+ 
+@my_ip = unpack("C4", $myaddr);
+$my_ip_addr  = join(".", @my_ip);
+
+unless ($ip1=IO::Socket::INET->new(LocalPort => $port, Proto=>'udp',
+                                   LocalAddr => $my_ip_addr)) {
+    logit('err',"Exiting: error creating UDP listener: $@");
+    die "error creating UDP listener for $my_ip_addr  $@\n";
+}
+$s->add($ip1);
+
+
+$pid = fork;
+exit if $pid;
+if(!(defined($pid))) {
+    logit('err',"Exiting: daemon couldn't fork: $!");
+    die "Daemon couldn't fork: $!";
+}
+POSIX::setsid();
+exit if fork();
+
+logit('info',"$0 daemon successfully started on port $port");
+
+open(STDIN,  "+>/dev/null");
+open(STDOUT, "+>&STDIN");
+open(STDERR, "+>&STDIN");
+
+#
+# do an initial call of fetch and nch (if installed)
+#
+if (defined $fetch && -x $fetch) {
+  logit('info', "Startup invocation of $fetch");
+  system ("$fetch") == 0
+    or logit('err',"[WARN] Startup invocation of ccm-fetch ($fetch) failed: $!");
+}
+
+if (defined $nch && -x $nch) {
+  logit('info', "Startup invocation of $nch");
+  system ("$nch") == 0
+    or logit('err',"[WARN] Startup invocation of cdbsync-nch ($nch) failed: $!");
+}
+
+#
+# now wait for notifications
+#
+while($ip1->recv($newmsg,1024)) {
+    chomp($newmsg);
+    ($NULL,$r_ipaddr) = sockaddr_in($ip1->peername);
+    $r_host = inet_ntoa($r_ipaddr);
+    $newmsg =~ /^(\w+).(\d+)$/;
+    my $ntype = $1;
+    my $time  = $2;
+    logit('info',"Received UDP packet ($ntype|$time) from $r_host");
+    # time extraction! 
+    if ($ntype eq"ccm") {
+	my $smear = int(rand($fetch_smear));
+	logit('info', "$fetch will be called in $smear seconds");
+	sleep($smear);
+	logit('info', "Calling $fetch with unix time $time (after $smear seconds)");	system ("$fetch --profile-time=$time") == 0
+	    or logit('err',"[ERROR] call of ccm-fetch ($fetch) failed: $!");
+
+    } elsif ($ntype eq "cdb") {
+	my $smear = int(rand($nch_smear));
+	logit('info', "$nch will be called in $smear seconds");
+	sleep($smear);
+	logit('info', "Calling $nch with unix time $time (after $smear seconds)");	system ("$nch") == 0
+	    or logit('err',"[ERROR] call of cdbsync-nch ($nch) failed: $!");
+
+    }
+}
+
+sub logit {
+    my ($priority, $msg) = @_; 
+    return 0 unless ($priority =~ /info|err|debug/);
+    setlogsock(@SOCKET_TYPE@);
+    openlog($0, 'pid', 'daemon');
+    syslog($priority, $msg);
+    closelog();
+    return 1;
+}
+
+
+__END__
+
+=head1 NAME
+
+cdp-listend - the CDP notfication daemon. listens for UDP packets
+and launches ccm-fetch or nch program accordingly to the type
+of notification
+
+=head1 DESCRIPTION
+
+This program is a daemon which runs on the local machine waiting to
+receive the CDP notification. On receiving a UDP packet containing the
+notification type and UNIX time, ccm-fetch is called with the
+profile update time as its only argument or nch.
+
+=head1 SYNOPSIS
+
+cdp-listend [OPTIONS]
+
+  -h, --help              print this message
+  -c, --config=FILE       config file location
+  -p, --port=PORT         listen port number 
+  -f, --fetch=PROG        ccm-fetch program
+  -n, --nch=PROG          nch program
+  --fetch_smear=SECONDS   fetch run smearing time
+  --nch_smear=SECONDS     nch run smearing time\n"; 
+
+Once initiated the daemon forks to the background. Information and
+error messages are written to @QTTR_LOG@/messages in Linux and to /var/adm/messages in Solaris
+
+=head1 AUTHOR
+
+Michael George
+University of Liverpool
+
+Piotr Poznanski
+CERN
+
+=cut

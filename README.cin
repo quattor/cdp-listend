@@ -1,0 +1,17 @@
+This is the client configuration system developed by the EU DataGrid
+WP4 Configuration Task. Background information can be found at
+<http://cern.ch/hep-proj-grid-fabric-config/>.
+
+It consists of:
+ - the cdp-listend daemon
+
+This daemon supports the CDP notifications. Upon receiving the
+notification it runs the ccm-fetch or nch applications.
+It should be installed on the machine where any of this software is installed
+so that it is capable to react to the notifications sent by CDB
+
+Man pages can be found in the @QTTR_DOC@ directory.
+
+Licensing information can be found in the LICENSE file.
+
+Comments and questions should be sent to hep-proj-grid-fabric-config@cern.ch.

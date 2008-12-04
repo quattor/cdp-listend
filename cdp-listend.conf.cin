@@ -1,0 +1,36 @@
+# cdp-listend configuration file
+# defualt values are commented below
+
+#
+# listen port
+#
+
+port = 7777
+
+#
+# nch executable location
+#
+
+nch = @QTTR_SBIN@/cdbsync-nch
+
+#
+# ccm-fetch executable location 
+#
+
+fetch = @QTTR_SBIN@/ccm-fetch
+
+#
+# ccm-fetch execution smearing in time
+# after receiving the notification ccm-fetch will be 
+# started in [0, fetch_smear] seconds time
+#
+
+fetch_smear = 15
+
+#
+# cdbsync-nch execution smearing in time
+# after receiving the notification cdbsync-nch will be 
+# started in [0, nch_smear] seconds time
+#
+
+nch_smear = 0

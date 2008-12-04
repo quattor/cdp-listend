@@ -1,0 +1,164 @@
+2005-07-28  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.17
+        - Corrected a bug in the Solaris postinstall script
+
+	I noticed that the Solaris sh generates an empty file if we
+	do "sed command file > file" while it just appends a new copy
+	if we do "sed command file >> file". To solve that, I put
+	the contents into a temporal $variable and then I did an 
+	"echo $variable > file". It works fine.
+
+2005-07-28  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.16
+        - Solaris corrections related with the logging system.
+
+	Changed in config.mk the Solaris Perl logging socket type from
+	'stream' to 'inet'. There are five possible: 'stream', 'unix',
+	'tcp', 'udp' or 'inet'. I checked that currently in Solaris only
+	work properly 'udp' and 'inet'. The other ones give no errors
+	but they didn't log the messages.
+
+	Corrected in specfile.spec the postinstall script to add the
+	daemon.info and daemon.debug entries to /etc/syslog.conf. I 
+	noticed that the logger only works if we add the new entries
+	following the existing ones, not at the beginning.
+
+	Deleted the entry of the startup script rcinit-cdp-listend.cin
+	related with the logging of the startup of the daemon. With
+	the latest corrections, cdp-listend logs what it does properly
+	but also logs when it is started.
+	
+2005-07-26  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.15
+        - Corrected the Solaris postinstall script.
+	
+	Now it will start the daemon after the installation of the package
+	but only if the process wp4.install is not running. This process
+	runs when a new machine is installed. If cdp-listend and cdispd 
+	are running while installing a machine, they can call spma without
+	any control at the same time we are installing the packages.
+
+	I also changed the way to add to /etc/syslog.conf the daemon.info
+	and daemon.debug entries. Now we add them to the first line which
+	logs to /var/adm/messages. If we add them to a different newly
+	created line, as before, the daemon.notice logs are logged twice
+	to /var/adm/messages.
+
+2005-07-25  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.14
+        - Changed the Solaris postinstall script. Now it will not start the daemon after the installation.
+
+2005-07-06  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.13
+        - Changed maintainer to Juan and German.
+
+2005-07-06  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.12
+        - General clean-up and update of the documentation. In particular,
+	I removed the files MANIFEST, INSTALL and DEPENDENCIES because 
+	they had very old and wrong information. I also completed and 
+	corrected the README file, including the path of the documentation 
+	directory which depends on the plataform. Then, I needed to change
+	the name of the file from README to README.cin to substitute the
+	@QTTR_DOC@ variable properly (and to reflect this change in the
+	Makefile and the spec file).
+
+2005-07-05  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.11
+        - Corrected the Solaris postinstall script to restart the 
+	syslog daemon if /etc/syslog.conf is modified
+
+2005-07-04  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.10
+        - Corrected the postinstall script to log properly on Solaris
+
+2005-06-02  German Cancio Melia
+
+        * Release: 1.0.9
+        - Corrected on Linux lock directory to /var/lock/subsys
+
+2005-05-19  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.8
+        - Added /usr/local/lib to LD_LIBRARY_PATH for Solaris compatibility
+
+2005-05-10  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.7
+        - Modifications to make the component Solaris-compatible.
+	Added @QTTR_INITD@ to take into account the different startup scripts 
+	directory for Linux and Solaris. Modified rcinit-cdp-listend.cin to 
+	make the component compatible with the Solaris sh. Modified 
+	specfile.spec to add and eliminate the needed links to /etc/rc*, 
+	necessary to the startup and shutdown of the service on Solaris.
+	
+2005-04-20  German Cancio Melia
+
+        * Release: 1.0.6
+        - Removed empty (and dangerous) %pre and %post in specfile
+
+2005-03-21  Juan Antonio LOPEZ PEREZ
+
+        * Release: 1.0.5
+        - Changed cdp-listend.output to a safe location on Solaris
+
+2005-03-18  German Cancio Melia
+
+        * Release: 1.0.4
+        - Added minor changes for Solaris support
+
+2005-01-27  Rafael Garcia Leiva
+
+        * Release: 1.0.3
+        - improved support for Solaris
+
+2005-01-11  German CANCIO MELIA
+
+        * Release: 1.0.2
+        - Reduced smeartime from 6mins to 15s
+
+2004-12-03  German CANCIO MELIA
+
+        * Release: 1.0.1
+        - added obsoletes tag for cdp-listend
+
+2004-10-28  Rafael Garcia Leiva
+
+        * Release: 1.0.0
+        - cleaned up EDG references. Package quattorised.
+
+2004-06-23 German Cancio
+
+        * Release: 0.9.7
+        - added a initial poll for fetch and nch in case they're installed. This fixes Savannah #3178 and allows to have a consistent profile on startup time. On daemon startup, edg-cdp-listend will now invoke the client applications which are found to be installed locally (this can be either CCM fetch or NCH). In case of failure, a [WARN] message will be issued to syslog.
+
+- The error message is now prefixed with [ERROR], and the invocation log 
+  message is now issued *before* and not *after* execution. An error 
+  message is generated in case fetch or nch fail.
+
+0.9.6 (gcancio)
+- added default config file
+
+0.9.5 (gcancio)
+- moved to LSB compliant paths
+
+0.9.4
+- added /usr/lib/perl to path
+
+0.9.3
+- logging messages fixed
+
+0.9.2
+- smearing added
+
+0.9.0
+- started
+(bases on the code of ccm-edg-listend written by Michael George)

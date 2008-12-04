@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# Init file for cdp-listend daemon
+#
+# chkconfig: 345 30 80
+# description: cdp-listend daemon for the CDP notifications
+   
+. @QTTR_INITD@/functions
+    
+LISTEN=@QTTR_SBIN@/cdp-listend
+RETVAL=0
+prog="cdp-listend"
+SOname=`uname`
+
+start()
+{
+  bash -c "echo -n Starting $prog:"
+  if [ $SOname = "Linux" ] ; then
+    initlog -c "$LISTEN"
+  fi
+  if [ $SOname = "SunOS" ] ; then
+    #*** In Solaris we need /usr/local/lib in LD_LIBRARY_PATH
+    LD_BEGINNING="`echo "$LD_LIBRARY_PATH" | sed 's/:.*//'`"
+    if [ "$LD_BEGINNING" != '/usr/local/lib' ]; then
+	LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH
+    fi
+    #***   In Solaris we don't have initlog so we use the standard Unix logger.
+    #***   It doesn't accept an input of more than one line so we use an 
+    #*** intermediate output file.
+    LISTEN_OUTPUT=@QTTR_VAR@/cdp-listend.output
+    [ -f $LISTEN_OUTPUT ] && rm -f $LISTEN_OUTPUT
+    $LISTEN > $LISTEN_OUTPUT 2>&1
+    logger -f $LISTEN_OUTPUT -t cdp-listend -p daemon.notice
+    rm -f $LISTEN_OUTPUT
+  fi
+  RETVAL=$?
+  if [ "$RETVAL" = 0 ]; then 
+    touch @LOCKFILE@
+    echo_success
+  else
+    echo_failure
+  fi
+  echo
+}
+                
+stop()
+{
+  bash -c "echo -n Stopping $prog:"
+  killproc $LISTEN -TERM
+  RETVAL=$?
+  [ "$RETVAL" = 0 ] && rm -f @LOCKFILE@
+  echo
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status $LISTEN
+    RETVAL=$?
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    RETVAL=1
+esac
+exit $RETVAL
