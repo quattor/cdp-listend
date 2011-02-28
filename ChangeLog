@@ -1,3 +1,8 @@
+2011-02-28  root
+
+	* Release: 1.0.18
+	- /sbin/initlog no longer exist in modern linux distributions. Using logger iif missing.
+
 2005-07-28  Juan Antonio LOPEZ PEREZ
 
         * Release: 1.0.17

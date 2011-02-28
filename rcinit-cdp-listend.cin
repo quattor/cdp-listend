@@ -16,7 +16,19 @@ start()
 {
   bash -c "echo -n Starting $prog:"
   if [ $SOname = "Linux" ] ; then
-    initlog -c "$LISTEN"
+    if [ -e /sbin/initlog ]; then
+      initlog -c "$LISTEN"
+    else
+      #*** initlog is deprecated in modern distributions so we use the standard
+      #*** logger.
+      #*** It doesn't accept an input of more than one line so we use an
+      #*** intermediate output file.
+      LISTEN_OUTPUT=@QTTR_VAR@/cdp-listend.output
+      [ -f $LISTEN_OUTPUT ] && rm -f $LISTEN_OUTPUT
+      $LISTEN > $LISTEN_OUTPUT 2>&1
+      logger -f $LISTEN_OUTPUT -t cdp-listend -p daemon.notice
+      rm -f $LISTEN_OUTPUT
+    fi
   fi
   if [ $SOname = "SunOS" ] ; then
     #*** In Solaris we need /usr/local/lib in LD_LIBRARY_PATH
