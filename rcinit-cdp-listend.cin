@@ -15,21 +15,6 @@ SOname=`uname`
 start()
 {
   bash -c "echo -n Starting $prog:"
-  if [ $SOname = "Linux" ] ; then
-    if [ -e /sbin/initlog ]; then
-      initlog -c "$LISTEN"
-    else
-      #*** initlog is deprecated in modern distributions so we use the standard
-      #*** logger.
-      #*** It doesn't accept an input of more than one line so we use an
-      #*** intermediate output file.
-      LISTEN_OUTPUT=@QTTR_VAR@/cdp-listend.output
-      [ -f $LISTEN_OUTPUT ] && rm -f $LISTEN_OUTPUT
-      $LISTEN > $LISTEN_OUTPUT 2>&1
-      logger -f $LISTEN_OUTPUT -t cdp-listend -p daemon.notice
-      rm -f $LISTEN_OUTPUT
-    fi
-  fi
   if [ $SOname = "SunOS" ] ; then
     #*** In Solaris we need /usr/local/lib in LD_LIBRARY_PATH
     LD_BEGINNING="`echo "$LD_LIBRARY_PATH" | sed 's/:.*//'`"
@@ -37,15 +22,9 @@ start()
 	LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 	export LD_LIBRARY_PATH
     fi
-    #***   In Solaris we don't have initlog so we use the standard Unix logger.
-    #***   It doesn't accept an input of more than one line so we use an 
-    #*** intermediate output file.
-    LISTEN_OUTPUT=@QTTR_VAR@/cdp-listend.output
-    [ -f $LISTEN_OUTPUT ] && rm -f $LISTEN_OUTPUT
-    $LISTEN > $LISTEN_OUTPUT 2>&1
-    logger -f $LISTEN_OUTPUT -t cdp-listend -p daemon.notice
-    rm -f $LISTEN_OUTPUT
   fi
+
+  $LISTEN
   RETVAL=$?
   if [ "$RETVAL" = 0 ]; then 
     touch @LOCKFILE@

@@ -82,7 +82,7 @@ print "usage: $0 [OPTIONS]
   exit(1);
 }
 
-print "config: " . $config->config() . "\n";
+logit("info", "Starting $0 with configuration file " . $config->config());
 
 if (-f $config->config()) {
     $config->file($config->config());
