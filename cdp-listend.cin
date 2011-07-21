@@ -179,8 +179,10 @@ sub logit {
     my ($priority, $msg) = @_; 
     return 0 unless ($priority =~ /info|err|debug/);
     setlogsock(@SOCKET_TYPE@);
-    openlog($0, 'pid', 'daemon');
-    syslog($priority, $msg);
+    eval {
+        openlog($0, 'pid', 'daemon');
+        syslog($priority, $msg);
+    }; warn $@ if $@;
     closelog();
     return 1;
 }
