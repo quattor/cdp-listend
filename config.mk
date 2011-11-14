@@ -6,7 +6,7 @@ COMP=cdp-listend
 
 NAME=$(COMP)
 DESCR=Configuration Distribution Protocol client deamon
-VERSION=1.0.20
+VERSION=1.1.0
 RELEASE=1
 
 AUTHOR=Piotr Poznanski
@@ -26,4 +26,4 @@ ifeq ($(QTTR_OS), Solaris)
   LOCKFILE=$(QTTR_LOCKD)/cdp-listend
 endif
   
-DATE=21/07/11 17:55
+DATE=14/11/11 17:07

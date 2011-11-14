@@ -49,6 +49,7 @@ my $fetch = undef;
 my $nch   = undef;
 my $fetch_smear = undef;
 my $nch_smear = undef;
+my $facility = undef;
 
 my $fetch_def  = "@QTTR_SBIN@/ccm-fetch";
 my $nch_def    = "@QTTR_SBIN@/cdbsync-nch";
@@ -69,6 +70,7 @@ $config->define("help|h!",
 		"nch|n=s",{DEFAULT=>$nch_def},
 		"fetch_smear=i",{DEFAULT=>$fetch_smear_def},
 		"nch_smear=i",{DEFAULT=>$nch_smear_def},
+        "facility=s", {DEFAULT=>"deamon"}
 		);
 if (!($config->getopt()) || $config->get("help")) {
 print "usage: $0 [OPTIONS]
@@ -93,6 +95,7 @@ $fetch       = $config->fetch();
 $nch         = $config->nch();
 $fetch_smear = $config->fetch_smear();
 $nch_smear   = $config->nch_smear();
+$facility   = $config->facility();
 
 
 $s = new IO::Select;
@@ -180,7 +183,7 @@ sub logit {
     return 0 unless ($priority =~ /info|err|debug/);
     setlogsock(@SOCKET_TYPE@);
     eval {
-        openlog($0, 'pid', 'daemon');
+        openlog($0, 'pid', $facility);
         syslog($priority, $msg);
     }; warn $@ if $@;
     closelog();
@@ -214,9 +217,11 @@ cdp-listend [OPTIONS]
   -n, --nch=PROG          nch program
   --fetch_smear=SECONDS   fetch run smearing time
   --nch_smear=SECONDS     nch run smearing time\n"; 
-
+  --facility              syslog facility
+  
 Once initiated the daemon forks to the background. Information and
-error messages are written to @QTTR_LOG@/messages in Linux and to /var/adm/messages in Solaris
+error messages are written to syslog 'deamon' facility (or to the facility
+defined in config file or command line
 
 =head1 AUTHOR
 
