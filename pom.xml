@@ -6,11 +6,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.quattor.cfg.module</groupId>
-  <artifactId>ncm-ncd</artifactId>
+  <artifactId>cdp-listend</artifactId>
 
   <packaging>pom</packaging>
   <version>2.0.0-SNAPSHOT</version>
-  <name>NCD is the frontend for invoking NCM components.</name>
+  <name>Configuration Distribution Protocol client deamon</name>
 
   <repositories>
     <repository>
@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.quattor.maven</groupId>
     <artifactId>build-profile</artifactId>
-    <version>1.16</version>
+    <version>1.21</version>
   </parent>
 
   <licenses>
@@ -75,48 +75,15 @@
 	  <groupId>org.codehaus.mojo</groupId>
 	  <artifactId>rpm-maven-plugin</artifactId>
 	  <configuration>
-	    <summary>NCD is the frontend for invoking NCM components.</summary>
+	    <summary>Configuration Distribution Protocol client daemon</summary>
 	    <name>ncm-ncd</name>
 	    <provides>
 	      <provide>ncm-ncd</provide>
 	    </provides>
 	    <needarch>noarch</needarch>
 	    <requires combine.self="override">
-	      <require>perl-CAF</require>
-	      <require>ccm</require>
 	    </requires>
 	    <mappings combine.self="override">
-	      <mapping>
-		<directory>/var/lock/quattor</directory>
-		<directoryIncluded>true</directoryIncluded>
-		<configuration>false</configuration>
-		<groupname>root</groupname>
-		<filemode>755</filemode>
-		<username>root</username>
-	      </mapping>
-	      <mapping>
-		<directory>/var/tmp/ncm</directory>
-		<directoryIncluded>true</directoryIncluded>
-		<configuration>false</configuration>
-		<groupname>root</groupname>
-		<username>root</username>
-		<filemode>755</filemode>
-	      </mapping>
-	      <mapping>
-		<directory>/var/log/ncm</directory>
-		<directoryIncluded>true</directoryIncluded>
-		<groupname>root</groupname>
-		<username>root</username>
-		<filemode>700</filemode>
-	      </mapping>
-	      <mapping>
-		<directory>/var/run/quattor-components</directory>
-		<directoryIncluded>true</directoryIncluded>
-		<filemode>755</filemode>
-		<configuration>false</configuration>
-		<groupname>root</groupname>
-		<username>root</username>
-	      </mapping>
 	      <mapping>
 		<directory>/usr/sbin</directory>
 		<filemode>755</filemode>
@@ -131,6 +98,18 @@
 		    </excludes>
 		  </source>
 		</sources>
+	      </mapping>
+	      <mapping>
+		<sources>
+		  <source>
+		    <location>${project.build.directory}/daemon</location>
+		  </source>
+		</sources>
+		<directory>/etc/init.d</directory>
+		<filemode>755</filemode>
+		<directoryIncluded>false</directoryIncluded>
+		<username>root</username>
+		<groupname>root</groupname>
 	      </mapping>
 	      <mapping>
 		<directory>/usr/share/doc/${project.artifactId}-${project.version}</directory>
@@ -148,36 +127,19 @@
 		  </source>
 		</sources>
 	      </mapping>
-	      <mapping>
-		<directory>/usr/lib</directory>
-		<filemode>644</filemode>
-		<username>root</username>
-		<groupname>root</groupname>
-		<directoryIncluded>false</directoryIncluded>
-		<sources>
-		  <source>
-		    <location>target/lib</location>
-		    <excludes>
-		      <exclude>ncm-ncd.pod</exclude>
-		    </excludes>
-		  </source>
-		</sources>
-		<documentation>false</documentation>
-		<configuration>false</configuration>
-	      </mapping>
-	      <mapping>
-		<directory>/usr/share/man</directory>
-		<filemode>644</filemode>
-		<username>root</username>
-		<groupname>root</groupname>
-		<documentation>true</documentation>
-		<directoryIncluded>false</directoryIncluded>
-		<sources>
-		  <source>
-		    <location>target/doc/man</location>
-		  </source>
-		</sources>
-	      </mapping>
+	      <!-- <mapping> -->
+	      <!-- 	<directory>/usr/share/man</directory> -->
+	      <!-- 	<filemode>644</filemode> -->
+	      <!-- 	<username>root</username> -->
+	      <!-- 	<groupname>root</groupname> -->
+	      <!-- 	<documentation>true</documentation> -->
+	      <!-- 	<directoryIncluded>false</directoryIncluded> -->
+	      <!-- 	<sources> -->
+	      <!-- 	  <source> -->
+	      <!-- 	    <location>${project.build.directory}/doc/man</location> -->
+	      <!-- 	  </source> -->
+	      <!-- 	</sources> -->
+	      <!-- </mapping> -->
 	      <mapping>
 		<directory>/etc</directory>
 		<filemode>644</filemode>
@@ -225,6 +187,25 @@
 	    </configuration>
 	  </execution>
 	  <execution>
+	    <id>filter-daemon</id>
+	    <phase>process-sources</phase>
+	    <goals>
+	      <goal>copy-resources</goal>
+	    </goals>
+	    <configuration>
+	      <outputDirectory>${project.build.directory}/daemon</outputDirectory>
+	      <resources>
+		<resource>
+		  <directory>src/main/daemon</directory>
+		  <filtering>true</filtering>
+		  <includes>
+		    <include>**/*</include>
+		  </includes>
+		</resource>
+	      </resources>
+	    </configuration>
+	  </execution>
+	  <execution>
 	    <id>filter-config</id>
 	    <phase>process-sources</phase>
 	    <goals>
@@ -243,178 +224,69 @@
 	      </resources>
 	    </configuration>
 	  </execution>
-	  <execution>
-	    <id>filter-perl-sources</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>copy-resources</goal>
-	    </goals>
-	    <configuration>
-	      <outputDirectory>${project.build.directory}/lib/perl/NCD</outputDirectory>
-	      <resources>
-		<resource>
-		  <directory>src/main/perl</directory>
-		  <filtering>true</filtering>
-		  <includes>
-		    <include>ComponentProxy.pm</include>
-		    <include>ComponentProxyList.pm</include>
-		  </includes>
-		</resource>
-	      </resources>
-	    </configuration>
-	  </execution>
-	  <execution>
-	    <id>filter-ncm-component</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>copy-resources</goal>
-	    </goals>
-	    <configuration>
-	      <outputDirectory>${project.build.directory}/lib/perl/NCM</outputDirectory>
-	      <resources>
-		<resource>
-		  <directory>src/main/perl</directory>
-		  <filtering>true</filtering>
-		  <excludes>
-		    <exclude>ComponentProxy.pm</exclude>
-		    <exclude>ComponentProxyList.pm</exclude>
-		  </excludes>
-		</resource>
-	      </resources>
-	    </configuration>
-	  </execution>
-	  <execution>
-	    <id>filter-pod-sources</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>copy-resources</goal>
-	    </goals>
-	    <configuration self.combine="override">
-	      <outputDirectory>${project.build.directory}/doc/pod/NCM</outputDirectory>
-	      <resources>
-		<resource>
-		  <directory>src/main/perl</directory>
-		  <includes>
-		    <include>*.pm</include>
-		  </includes>
-		  <excludes>
-		    <exclude>ComponentProxy.pm</exclude>
-		    <exclude>ComponentProxyList.pm</exclude>
-		  </excludes>
+	<!-- The pod2man script requires a somewhat matching layout
+	     for the target/lib/perl and the target/doc/pod. The
+	     following two executions do that. We'll have to ignore
+	     the intermediate files from the RPM. -->
+	<execution>
+	  <id>mimick-ncm-ncd-man</id>
+	  <phase>process-sources</phase>
+	  <goals>
+	    <goal>copy-resources</goal>
+	  </goals>
+	  <configuration>
+	    <outputDirectory>${project.build.directory}/doc/pod</outputDirectory>
+	    <resources>
+	      <resource>
+		<directory>src/main/scripts</directory>
+		<includes>
+		  <include>cdp-listend</include>
+		</includes>
+		<filtering>true</filtering>
+	      </resource>
+	    </resources>
+	  </configuration>
+	</execution>
+      </executions>
+    </plugin>
+    <plugin>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <executions>
+	<execution>
+	  <id>rename-pod-sources</id>
+	  <phase>process-sources</phase>
+	  <goals>
+	    <goal>run</goal>
+	  </goals>
+	  <configuration>
+	    <tasks name="Rename">
+	      <move filtering="true" todir="${project.build.directory}/doc/pod">
+		<fileset dir="${project.build.directory}/doc/pod"/>
+		<mapper>
+		  <globmapper from="cdp-listend" to="cdp-listend.pod"/>
+		</mapper>
+	      </move>
+	    </tasks>
+	  </configuration>
+	</execution>
+      </executions>
+    </plugin>
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <extensions>true</extensions>
+      <executions>
+	<execution>
+	  <id>tarballs</id>
+	  <configuration combine.self="override">
+	    <descriptors>
+	      <descriptor>target/dependency/assemblies/bin.xml</descriptor>
+	    </descriptors>
+	  </configuration>
+	</execution>
+      </executions>
+    </plugin>
 
-		  <filtering>true</filtering>
-		</resource>
-	      </resources>
-	    </configuration>
-	  </execution>
-	  <execution>
-	    <id>filter-ncd-pod-sources</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>copy-resources</goal>
-	    </goals>
-	    <configuration self.combine="override">
-	      <outputDirectory>${project.build.directory}/doc/pod/NCD</outputDirectory>
-	      <resources>
-		<resource>
-		  <directory>src/main/perl</directory>
-		  <includes>
-		    <include>ComponentProxy.pm</include>
-		    <include>ComponentProxyList.pm</include>
-		  </includes>
-		  <filtering>true</filtering>
-		</resource>
-	      </resources>
-	    </configuration>
-	  </execution>
-	  <!-- The pod2man script requires a somewhat matching layout
-	       for the target/lib/perl and the target/doc/pod. The
-	       following two executions do that. We'll have to ignore
-	       the intermediate files from the RPM. -->
-	  <execution>
-	    <id>mimick-ncm-ncd-man</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>copy-resources</goal>
-	    </goals>
-	    <configuration>
-	      <outputDirectory>${project.build.directory}/doc/pod</outputDirectory>
-	      <resources>
-		<resource>
-		  <directory>src/main/scripts</directory>
-		  <includes>
-		    <include>*.pod</include>
-		  </includes>
-		  <filtering>true</filtering>
-		</resource>
-	      </resources>
-	    </configuration>
-	  </execution>
-	  <execution>
-	    <id>mimick-ncm-ncd-man-pod</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>copy-resources</goal>
-	    </goals>
-	    <configuration>
-	      <outputDirectory>${project.build.directory}/lib/perl</outputDirectory>
-	      <resources>
-		<resource>
-		  <directory>src/main/scripts</directory>
-		  <includes>
-		    <include>*.pod</include>
-		  </includes>
-		  <filtering>true</filtering>
-		</resource>
-	      </resources>
-	    </configuration>
-	  </execution>
-	</executions>
-      </plugin>
-      <plugin>
-	<artifactId>maven-antrun-plugin</artifactId>
-	<executions>
-	  <execution>
-	    <id>rename-pod-sources</id>
-	    <phase>process-sources</phase>
-	    <goals>
-	      <goal>run</goal>
-	    </goals>
-	    <configuration>
-	      <tasks name="Rename">
-		<move filtering="true" todir="${project.build.directory}/doc/pod/NCD">
-		  <fileset dir="${project.build.directory}/doc/pod/NCD"/>
-		  <mapper>
-		    <globmapper from="*.pm" to="*.pod"/>
-		  </mapper>
-		</move>
-		<move filtering="true" todir="${project.build.directory}/doc/pod/NCM">
-		  <fileset dir="${project.build.directory}/doc/pod/NCM"/>
-		  <mapper>
-		    <globmapper from="*.pm" to="*.pod"/>
-		  </mapper>
-		</move>
-	      </tasks>
-	    </configuration>
-	  </execution>
-	</executions>
-      </plugin>
-      <plugin>
-	<artifactId>maven-assembly-plugin</artifactId>
-	<extensions>true</extensions>
-	<executions>
-	  <execution>
-	    <id>tarballs</id>
-	    <configuration combine.self="override">
-	      <descriptors>
-		<descriptor>target/dependency/assemblies/bin.xml</descriptor>
-	      </descriptors>
-	    </configuration>
-	  </execution>
-	</executions>
-      </plugin>
-
-    </plugins>
-  </build>
+  </plugins>
+</build>
 
 </project>

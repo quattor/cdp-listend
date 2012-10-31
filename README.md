@@ -1,3 +1,5 @@
+[![Build Status](http://jenkins1.ugent.be/view/Quattor/job/cdp-listend/badge/icon)](https://jenkins1.ugent.be/view/Quattor/job/cdp-listend/)
+
 This is the client configuration system for [Quattor](http://quattor.org)
 
 It consists of:
