@@ -1,4 +1,4 @@
-#!@PERL_EXECUTABLE@ -w
+#!/usr/bin/perl -w
 
 #######################################################################
 #
@@ -14,8 +14,8 @@
 # Beginning sequence for EDG initialization
 #
 BEGIN {
-  # use perl libs in @QTTR_PERLLIB@
-  unshift(@INC, '@QTTR_PERLLIB@');
+  # use perl libs in /usr/lib/perl
+  unshift(@INC, '/usr/lib/perl');
   unshift(@INC,'/opt/edg/lib/perl');
 }
 
@@ -51,9 +51,9 @@ my $fetch_smear = undef;
 my $nch_smear = undef;
 my $facility = undef;
 
-my $fetch_def  = "@QTTR_SBIN@/ccm-fetch";
-my $nch_def    = "@QTTR_SBIN@/cdbsync-nch";
-my $config_def = "@QTTR_ETC@/cdp-listend.conf";
+my $fetch_def  = "/usr/sbin/ccm-fetch";
+my $nch_def    = "/usr/sbin/cdbsync-nch";
+my $config_def = "/etc/cdp-listend.conf";
 my $port_def   = 7777;
 my $fetch_smear_def  = 300;
 my $nch_smear_def    = 0;
@@ -181,7 +181,7 @@ while($ip1->recv($newmsg,1024)) {
 sub logit {
     my ($priority, $msg) = @_; 
     return 0 unless ($priority =~ /info|err|debug/);
-    setlogsock(@SOCKET_TYPE@);
+    setlogsock('unix');
     eval {
         openlog($0, 'pid', $facility);
         syslog($priority, $msg);

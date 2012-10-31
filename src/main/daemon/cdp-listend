@@ -5,9 +5,9 @@
 # chkconfig: 345 30 80
 # description: cdp-listend daemon for the CDP notifications
    
-. @QTTR_INITD@/functions
+. /etc/rc.d/init.d/functions
     
-LISTEN=@QTTR_SBIN@/cdp-listend
+LISTEN=/usr/sbin/cdp-listend
 RETVAL=0
 prog="cdp-listend"
 SOname=`uname`
@@ -27,7 +27,7 @@ start()
   $LISTEN
   RETVAL=$?
   if [ "$RETVAL" = 0 ]; then 
-    touch @LOCKFILE@
+    touch /var/lock/subsys/cdp-listend
     echo_success
   else
     echo_failure
@@ -40,7 +40,7 @@ stop()
   bash -c "echo -n Stopping $prog:"
   killproc $LISTEN -TERM
   RETVAL=$?
-  [ "$RETVAL" = 0 ] && rm -f @LOCKFILE@
+  [ "$RETVAL" = 0 ] && rm -f /var/lock/subsys/cdp-listend
   echo
 }
 
