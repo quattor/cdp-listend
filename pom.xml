@@ -76,7 +76,7 @@
 	  <artifactId>rpm-maven-plugin</artifactId>
 	  <configuration>
 	    <summary>Configuration Distribution Protocol client daemon</summary>
-	    <name>ncm-ncd</name>
+	    <name>${project.artifactId}</name>
 	    <provides>
 	      <provide>ncm-ncd</provide>
 	    </provides>
