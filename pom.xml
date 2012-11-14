@@ -77,9 +77,6 @@
 	  <configuration>
 	    <summary>Configuration Distribution Protocol client daemon</summary>
 	    <name>${project.artifactId}</name>
-	    <provides>
-	      <provide>ncm-ncd</provide>
-	    </provides>
 	    <needarch>noarch</needarch>
 	    <requires combine.self="override">
 	    </requires>
