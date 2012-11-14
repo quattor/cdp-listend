@@ -80,6 +80,9 @@
 	    <needarch>noarch</needarch>
 	    <requires combine.self="override">
 	    </requires>
+	    <provides combine.self="override">
+	      <provide>cdp-listend</provide>
+	    </provides>
 	    <mappings combine.self="override">
 	      <mapping>
 		<directory>/usr/sbin</directory>
