@@ -78,6 +78,20 @@
 	    <provides combine.self="override">
 	      <provide>cdp-listend</provide>
 	    </provides>
+	    <postinstallScriptlet>
+	      <script>
+	        /sbin/chkconfig --add ${project.artifactId}
+	        /sbin/service ${project.artifactId} restart
+	      </script>
+	    </postinstallScriptlet>
+	    <preuninstallScriptlet>
+	      <script>
+		if [ "$1" -eq 0 ]  # Uninstall rather than upgrade
+		then
+                    # Do not stop the service as the uninstall may happen from within the service...
+		    /sbin/chkconfig --del ${project.artifactId}
+		fi
+	      </script>
 	    <mappings combine.self="override">
 	      <mapping>
 		<directory>/usr/sbin</directory>
