@@ -92,6 +92,7 @@
 		    /sbin/chkconfig --del ${project.artifactId}
 		fi
 	      </script>
+	    </preuninstallScriptlet>
 	    <mappings combine.self="override">
 	      <mapping>
 		<directory>/usr/sbin</directory>
