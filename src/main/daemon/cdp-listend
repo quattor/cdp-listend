@@ -10,7 +10,7 @@
 LISTEN=/usr/sbin/cdp-listend
 RETVAL=0
 PIDFILE=/var/run/cdp-listend.pid
-LOCKFILE=/var/lock/quattor/cdp-listend
+LOCKFILE=/var/lock/subsys/cdp-listend
 prog="cdp-listend"
 SOname=`uname`
 
