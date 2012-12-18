@@ -163,6 +163,22 @@
 		  </source>
 		</sources>
 	      </mapping>
+              <mapping>
+                <directory>/usr/quattor/scripts</directory>
+                <filemode>755</filemode>
+                <username>root</username>
+                <groupname>root</groupname>
+                <documentation>false</documentation>
+                <directoryIncluded>false</directoryIncluded>
+                <sources>
+                  <source>
+                    <location>${project.build.directory}/sbin</location>
+                    <includes>
+                      <include>check-cdp-listend</include>
+                    </includes>
+                  </source>
+                </sources>
+              </mapping>
 	    </mappings>
 	  </configuration>
 	</plugin>
