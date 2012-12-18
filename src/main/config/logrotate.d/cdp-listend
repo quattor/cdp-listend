@@ -1,0 +1,14 @@
+/var/log/${project.artifactId}.log {
+    daily
+    notifempty
+    missingok
+    copytruncate
+}
+
+/var/log/check-${project.artifactId}.cron.log {
+    weekly
+    notifempty
+    missingok
+    copytruncate
+}
+
