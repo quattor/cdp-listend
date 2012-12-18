@@ -137,19 +137,6 @@
 		  </source>
 		</sources>
 	      </mapping>
-	      <!-- <mapping> -->
-	      <!-- 	<directory>/usr/share/man</directory> -->
-	      <!-- 	<filemode>644</filemode> -->
-	      <!-- 	<username>root</username> -->
-	      <!-- 	<groupname>root</groupname> -->
-	      <!-- 	<documentation>true</documentation> -->
-	      <!-- 	<directoryIncluded>false</directoryIncluded> -->
-	      <!-- 	<sources> -->
-	      <!-- 	  <source> -->
-	      <!-- 	    <location>${project.build.directory}/doc/man</location> -->
-	      <!-- 	  </source> -->
-	      <!-- 	</sources> -->
-	      <!-- </mapping> -->
 	      <mapping>
 		<directory>/etc</directory>
 		<filemode>644</filemode>
