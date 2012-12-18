@@ -50,6 +50,7 @@ my $nch   = undef;
 my $fetch_smear = undef;
 my $nch_smear = undef;
 my $facility = undef;
+my $pidfile = undef;
 
 my $fetch_def  = "/usr/sbin/ccm-fetch";
 my $nch_def    = "/usr/sbin/cdbsync-nch";
@@ -72,7 +73,6 @@ $config->define("help|h!",
 		"nch_smear=i",{DEFAULT=>$nch_smear_def},
 		"facility=s", {DEFAULT=>"deamon"},
 		"pidfile=s", {DEFAULT=>"/var/run/cdp-listend.pid"},
-          HELP    => 'write PID to this file path',
 		);
 if (!($config->getopt()) || $config->get("help")) {
 print "usage: $0 [OPTIONS]
@@ -83,7 +83,7 @@ print "usage: $0 [OPTIONS]
   -n, --nch=PROG          nch program
   --fetch_smear=SECONDS   fetch run smearing time
   --nch_smear=SECONDS     nch run smearing time
-  --pidfile=file          write PID to this file path\n";
+  --pidfile=FILE          write PID to FILE\n";
   exit(1);
 }
 
@@ -133,10 +133,10 @@ POSIX::setsid();
 exit if fork();
 
 # Save the PID.
-if ( $this_app->option('pidfile') ) {
-   if ( ! open(PIDFILE,">".$this_app->option('pidfile')) ) {
-      $this_app->error("Cannot write PID to file \"".
-         $this_app->option('pidfile')."\": $! : Exiting");
+if ( $pidfile ) {
+   if ( ! open(PIDFILE,">".$pidfile) ) {
+      logit('err',"Cannot write PID to file \"".
+         $pidfile."\": $! : Exiting");
       exit(-1);
    }
    print(PIDFILE "$$");
