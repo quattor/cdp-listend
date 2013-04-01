@@ -28,8 +28,11 @@ start()
 
   $LISTEN
   RETVAL=$?
+  # Mark the attempt to start the daemon, even if not successful.
+  # This will allow the monitoring cron job to attempt to restart it
+  # in case of a failure here.
+  touch $LOCKFILE
   if [ "$RETVAL" = 0 ]; then 
-    touch $LOCKFILE
     echo_success
   else
     echo_failure
