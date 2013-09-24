@@ -6,7 +6,7 @@
   <artifactId>cdp-listend</artifactId>
 
   <packaging>pom</packaging>
-  <version>13.1.2-RC2</version>
+  <version>13.1.2-RC3-SNAPSHOT</version>
   <name>Configuration Distribution Protocol client deamon</name>
 
   <repositories>
