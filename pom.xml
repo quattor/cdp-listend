@@ -89,8 +89,14 @@
 	    </provides>
 	    <postinstallScriptlet>
 	      <script>
-	        /sbin/chkconfig --add ${project.artifactId}
-	        /sbin/service ${project.artifactId} restart
+                        <![CDATA[
+       if [ "$1" = "1" ] ; then  # first install
+                /sbin/chkconfig --add ${project.artifactId}
+       elif [ "$1" = "2" ] ; then  # upgrade
+                /sbin/chkconfig --add ${project.artifactId}
+                /sbin/service ${project.artifactId} restart > /dev/null 2>&1 || :
+       fi
+                        ]]>
 	      </script>
 	    </postinstallScriptlet>
 	    <preuninstallScriptlet>
