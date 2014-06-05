@@ -6,7 +6,7 @@
   <artifactId>cdp-listend</artifactId>
 
   <packaging>pom</packaging>
-  <version>14.5.0-rc7-SNAPSHOT</version>
+  <version>14.5.0-rc7</version>
   <name>Configuration Distribution Protocol client deamon</name>
 
   <repositories>
