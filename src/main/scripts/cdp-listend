@@ -47,6 +47,7 @@ my $priority = undef;
 my $msg = undef;
 my $fetch = undef;
 my $nch   = undef;
+my $fetch_offset = undef;
 my $fetch_smear = undef;
 my $nch_smear = undef;
 my $facility = undef;
@@ -56,6 +57,7 @@ my $fetch_def  = "/usr/sbin/ccm-fetch";
 my $nch_def    = "/usr/sbin/cdbsync-nch";
 my $config_def = "/etc/cdp-listend.conf";
 my $port_def   = 7777;
+my $fetch_offset_def = 0;
 my $fetch_smear_def  = 300;
 my $nch_smear_def    = 0;
 
@@ -69,6 +71,7 @@ $config->define("help|h!",
         "port|p=i",{DEFAULT=>$port_def},
         "fetch|f=s",{DEFAULT=>$fetch_def},
         "nch|n=s",{DEFAULT=>$nch_def},
+        "fetch_offset=i",{DEFAULT=>$fetch_offset_def},
         "fetch_smear=i",{DEFAULT=>$fetch_smear_def},
         "nch_smear=i",{DEFAULT=>$nch_smear_def},
         "facility=s", {DEFAULT=>"deamon"},
@@ -81,6 +84,7 @@ print "usage: $0 [OPTIONS]
   -p, --port=PORT         listen port number 
   -f, --fetch=PROG        ccm-fetch program
   -n, --nch=PROG          nch program
+  --fetch_offset=SECONDS   fetch run offset time
   --fetch_smear=SECONDS   fetch run smearing time
   --nch_smear=SECONDS     nch run smearing time
   --pidfile=FILE          write PID to FILE\n";
@@ -96,6 +100,7 @@ if (-f $config->config()) {
 $port        = $config->port();
 $fetch       = $config->fetch();
 $nch         = $config->nch();
+$fetch_offset = $config->fetch_offset();
 $fetch_smear = $config->fetch_smear();
 $nch_smear   = $config->nch_smear();
 $facility   = $config->facility();
@@ -177,15 +182,18 @@ while($ip1->recv($newmsg,1024)) {
     # time extraction! 
     if ($ntype eq"ccm") {
         my $smear = int(rand($fetch_smear));
-        logit('info', "$fetch will be called in $smear seconds");
-        sleep($smear);
-        logit('info', "Calling $fetch with unix time $time (after $smear seconds)");	system ("$fetch --profile-time=$time") == 0
+        my $delay = $smear + $fetch_offset;
+        logit('info', "$fetch will be called in $delay seconds (offset=$fetch_offset, smear=$smear)");
+        sleep($delay);
+        logit('info', "Calling $fetch with unix time $time (after $delay seconds)");	
+        system ("$fetch --profile-time=$time") == 0
             or logit('err',"[ERROR] call of ccm-fetch ($fetch) failed: $!");
     } elsif ($ntype eq "cdb") {
         my $smear = int(rand($nch_smear));
         logit('info', "$nch will be called in $smear seconds");
         sleep($smear);
-        logit('info', "Calling $nch with unix time $time (after $smear seconds)");	system ("$nch") == 0
+        logit('info', "Calling $nch with unix time $time (after $smear seconds)");	
+        system ("$nch") == 0
             or logit('err',"[ERROR] call of cdbsync-nch ($nch) failed: $!");
     }
 }
@@ -227,6 +235,7 @@ cdp-listend [OPTIONS]
   -p, --port=PORT         listen port number 
   -f, --fetch=PROG        ccm-fetch program
   -n, --nch=PROG          nch program
+  --fetch_offset=SECONDS   fetch run offset time
   --fetch_smear=SECONDS   fetch run smearing time
   --nch_smear=SECONDS     nch run smearing time\n"; 
   --facility              syslog facility
