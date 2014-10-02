@@ -257,7 +257,7 @@
 	     following two executions do that. We'll have to ignore
 	     the intermediate files from the RPM. -->
 	<execution>
-	  <id>mimick-ncm-ncd-man</id>
+	  <id>filter-pod-sources</id>
 	  <phase>process-sources</phase>
 	  <goals>
 	    <goal>copy-resources</goal>
@@ -275,6 +275,25 @@
 	    </resources>
 	  </configuration>
 	</execution>
+        <execution>
+          <id>mimick-ncm-ncd-man</id>
+          <phase>process-sources</phase>
+          <goals>
+            <goal>copy-resources</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>${project.build.directory}/lib/perl</outputDirectory>
+            <resources>
+              <resource>
+                <directory>src/main/scripts</directory>
+                <includes>
+                  <include>cdp-listend</include>
+                </includes>
+                <filtering>true</filtering>
+              </resource>
+            </resources>
+          </configuration>
+        </execution>
       </executions>
     </plugin>
     <plugin>
@@ -288,12 +307,14 @@
 	  </goals>
 	  <configuration>
 	    <tasks name="Rename">
-	      <move filtering="true" todir="${project.build.directory}/doc/pod">
-		<fileset dir="${project.build.directory}/doc/pod" />
-		<mapper>
-		  <globmapper from="cdp-listend" to="cdp-listend.pod" />
-		</mapper>
-	      </move>
+               <move filtering="true"
+                      file="${project.build.directory}/doc/pod/cdp-listend" 
+                      tofile="${project.build.directory}/doc/pod/cdp-listend.pod"
+                      verbose="true"/>
+               <move filtering="true"
+                      file="${project.build.directory}/lib/perl/cdp-listend" 
+                      tofile="${project.build.directory}/lib/perl/cdp-listend.pod"
+                      verbose="true"/>
 	    </tasks>
 	  </configuration>
 	</execution>
