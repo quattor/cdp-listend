@@ -294,6 +294,7 @@
 		  <globmapper from="cdp-listend" to="cdp-listend.pod" />
 		</mapper>
 	      </move>
+	      <mkdir dir="${project.build.directory}/lib/perl"/>
 	    </tasks>
 	  </configuration>
 	</execution>
