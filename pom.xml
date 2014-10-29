@@ -6,7 +6,7 @@
   <artifactId>cdp-listend</artifactId>
 
   <packaging>pom</packaging>
-  <version>14.8.1-SNAPSHOT</version>
+  <version>14.10.0-rc1</version>
   <name>Configuration Distribution Protocol client deamon</name>
 
   <repositories>
@@ -307,14 +307,8 @@
 	  </goals>
 	  <configuration>
 	    <tasks name="Rename">
-               <move filtering="true"
-                      file="${project.build.directory}/doc/pod/cdp-listend" 
-                      tofile="${project.build.directory}/doc/pod/cdp-listend.pod"
-                      verbose="true"/>
-               <move filtering="true"
-                      file="${project.build.directory}/lib/perl/cdp-listend" 
-                      tofile="${project.build.directory}/lib/perl/cdp-listend.pod"
-                      verbose="true"/>
+               <move filtering="true" file="${project.build.directory}/doc/pod/cdp-listend" tofile="${project.build.directory}/doc/pod/cdp-listend.pod" verbose="true" />
+               <move filtering="true" file="${project.build.directory}/lib/perl/cdp-listend" tofile="${project.build.directory}/lib/perl/cdp-listend.pod" verbose="true" />
 	    </tasks>
 	  </configuration>
 	</execution>
