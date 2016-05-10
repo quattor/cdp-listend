@@ -4,9 +4,9 @@
 #
 # chkconfig: 345 30 80
 # description: cdp-listend daemon for the CDP notifications
-   
+
 . /etc/rc.d/init.d/functions
-    
+
 LISTEN=/usr/sbin/cdp-listend
 RETVAL=0
 PIDFILE=/var/run/cdp-listend.pid
@@ -16,60 +16,60 @@ SOname=`uname`
 
 start()
 {
-  bash -c "echo -n Starting $prog:"
-  if [ $SOname = "SunOS" ] ; then
-    #*** In Solaris we need /usr/local/lib in LD_LIBRARY_PATH
-    LD_BEGINNING="`echo "$LD_LIBRARY_PATH" | sed 's/:.*//'`"
-    if [ "$LD_BEGINNING" != '/usr/local/lib' ]; then
-	LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-	export LD_LIBRARY_PATH
+    bash -c "echo -n Starting $prog:"
+    if [ $SOname = "SunOS" ] ; then
+        #*** In Solaris we need /usr/local/lib in LD_LIBRARY_PATH
+        LD_BEGINNING="`echo "$LD_LIBRARY_PATH" | sed 's/:.*//'`"
+        if [ "$LD_BEGINNING" != '/usr/local/lib' ]; then
+	        LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+	        export LD_LIBRARY_PATH
+        fi
     fi
-  fi
 
-  $LISTEN
-  RETVAL=$?
-  # Mark the attempt to start the daemon, even if not successful.
-  # This will allow the monitoring cron job to attempt to restart it
-  # in case of a failure here.
-  touch $LOCKFILE
-  if [ "$RETVAL" = 0 ]; then 
-    echo_success
-  else
-    echo_failure
-  fi
-  echo
+    $LISTEN
+    RETVAL=$?
+    # Mark the attempt to start the daemon, even if not successful.
+    # This will allow the monitoring cron job to attempt to restart it
+    # in case of a failure here.
+    touch $LOCKFILE
+    if [ "$RETVAL" = 0 ]; then
+        echo_success
+    else
+        echo_failure
+    fi
+    echo
 }
-                
+
 stop()
 {
-  bash -c "echo -n Stopping $prog:"
-  killproc $LISTEN -TERM
-  RETVAL=$?
-  if [ "$RETVAL" = 0 ]
-  then
-    rm -f $LOCKFILE
-    rm -f $PIDFILE
-  fi
-  echo
+    bash -c "echo -n Stopping $prog:"
+    killproc $LISTEN -TERM
+    RETVAL=$?
+    if [ "$RETVAL" = 0 ]
+    then
+        rm -f $LOCKFILE
+        rm -f $PIDFILE
+    fi
+    echo
 }
 
 case "$1" in
-  start)
-    start
-    ;;
-  stop)
-    stop
-    ;;
-  status)
-    status $LISTEN
-    RETVAL=$?
-    ;;
-  restart)
-    stop
-    start
-    ;;
-  *)
-    echo "Usage: $0 {start|stop|restart|status}"
-    RETVAL=1
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $LISTEN
+        RETVAL=$?
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        RETVAL=1
 esac
 exit $RETVAL

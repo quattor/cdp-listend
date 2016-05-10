@@ -74,7 +74,7 @@ $config->define("help|h!",
         "fetch_offset=i",{DEFAULT=>$fetch_offset_def},
         "fetch_smear=i",{DEFAULT=>$fetch_smear_def},
         "nch_smear=i",{DEFAULT=>$nch_smear_def},
-        "facility=s", {DEFAULT=>"deamon"},
+        "facility=s", {DEFAULT=>"daemon"},
         "pidfile=s", {DEFAULT=>"/var/run/cdp-listend.pid"},
         );
 if (!($config->getopt()) || $config->get("help")) {
