@@ -1,26 +1,19 @@
 #!/usr/bin/perl -w
-
-#######################################################################
-#
-# cdp-listend
-#
-# Copyright (c) 2003 EU DataGrid project.  All rights reserved.
-# For license conditions see file LICENSE or
-# <http://www.eu-datagrid.org/license.html>
-#
-#######################################################################
-
-#
-# Beginning sequence for EDG initialization
-#
-BEGIN {
-  # use perl libs in /usr/lib/perl
-  unshift(@INC, '/usr/lib/perl');
-  unshift(@INC,'/opt/edg/lib/perl');
-}
+# ${license-info}
+# ${developer-info}
+# ${author-info}
+# ${build-info}
 
 
 use strict;
+use warnings;
+
+BEGIN {
+  # use perl libs in /usr/lib/perl
+  unshift(@INC, '/usr/lib/perl');
+}
+
+
 use IO::Socket;
 use IO::Select;
 use POSIX;
@@ -81,7 +74,7 @@ if (!($config->getopt()) || $config->get("help")) {
 print "usage: $0 [OPTIONS]
   -h, --help              print this message
   -c, --config=FILE       config file location
-  -p, --port=PORT         listen port number 
+  -p, --port=PORT         listen port number
   -f, --fetch=PROG        ccm-fetch program
   -n, --nch=PROG          nch program
   --fetch_offset=SECONDS   fetch run offset time
@@ -115,8 +108,15 @@ if ($hostname =~ /(localhost)+\.*(localdomain)*/) {
     die "Hostname incorrectly set as $hostname\n";
 }
 
-(undef,undef,undef,undef,$myaddr) = gethostbyname($hostname);
- 
+my ($name,$aliases,$addrtype,$length,@addrs) = gethostbyname($hostname);
+if(@addrs) {
+    $myaddr = $addrs[0];
+} else {
+    my $err_msg = "failed to retrieve addr from gethostbyname($hostname): ec $?";
+    logit('err', "Exiting: $err_msg");
+    die "$err_msg\n";
+}
+
 @my_ip = unpack("C4", $myaddr);
 $my_ip_addr  = join(".", @my_ip);
 
@@ -179,27 +179,27 @@ while($ip1->recv($newmsg,1024)) {
     my $ntype = $1;
     my $time  = $2;
     logit('info',"Received UDP packet ($ntype|$time) from $r_host");
-    # time extraction! 
+    # time extraction!
     if ($ntype eq"ccm") {
         my $smear = int(rand($fetch_smear));
         my $delay = $smear + $fetch_offset;
         logit('info', "$fetch will be called in $delay seconds (offset=$fetch_offset, smear=$smear)");
         sleep($delay);
-        logit('info', "Calling $fetch with unix time $time (after $delay seconds)");	
+        logit('info', "Calling $fetch with unix time $time (after $delay seconds)");
         system ("$fetch --profile-time=$time") == 0
             or logit('err',"[ERROR] call of ccm-fetch ($fetch) failed: $!");
     } elsif ($ntype eq "cdb") {
         my $smear = int(rand($nch_smear));
         logit('info', "$nch will be called in $smear seconds");
         sleep($smear);
-        logit('info', "Calling $nch with unix time $time (after $smear seconds)");	
+        logit('info', "Calling $nch with unix time $time (after $smear seconds)");
         system ("$nch") == 0
             or logit('err',"[ERROR] call of cdbsync-nch ($nch) failed: $!");
     }
 }
 
 sub logit {
-    my ($priority, $msg) = @_; 
+    my ($priority, $msg) = @_;
     return 0 unless ($priority =~ /info|err|debug/);
     setlogsock('unix');
     eval {
@@ -232,16 +232,16 @@ cdp-listend [OPTIONS]
 
   -h, --help              print this message
   -c, --config=FILE       config file location
-  -p, --port=PORT         listen port number 
+  -p, --port=PORT         listen port number
   -f, --fetch=PROG        ccm-fetch program
   -n, --nch=PROG          nch program
   --fetch_offset=SECONDS   fetch run offset time
   --fetch_smear=SECONDS   fetch run smearing time
-  --nch_smear=SECONDS     nch run smearing time\n"; 
+  --nch_smear=SECONDS     nch run smearing time\n";
   --facility              syslog facility
-  
+
 Once initiated the daemon forks to the background. Information and
-error messages are written to syslog 'deamon' facility (or to the facility
+error messages are written to syslog 'daemon' facility (or to the facility
 defined in config file or command line
 
 =head1 AUTHOR
