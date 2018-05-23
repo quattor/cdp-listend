@@ -3,7 +3,7 @@
   <groupId>org.quattor.daemon</groupId>
   <artifactId>cdp-listend</artifactId>
   <packaging>pom</packaging>
-  <version>18.3.0-rc5-SNAPSHOT</version>
+  <version>18.3.0-rc5</version>
   <name>Configuration Distribution Protocol client daemon</name>
   <repositories>
     <repository>
