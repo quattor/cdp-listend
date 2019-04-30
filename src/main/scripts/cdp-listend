@@ -45,7 +45,6 @@ my $fetch_smear = undef;
 my $nch_smear = undef;
 my $facility = undef;
 my $pidfile = undef;
-my $hostname;
 
 my $fetch_def  = "/usr/sbin/ccm-fetch";
 my $nch_def    = "/usr/sbin/cdbsync-nch";
