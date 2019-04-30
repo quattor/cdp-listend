@@ -94,15 +94,15 @@ if (-f $config->config()) {
     $config->file($config->config());
 }
 
-$port        = $config->port();
-$fetch       = $config->fetch();
-$nch         = $config->nch();
+$port = $config->port();
+$fetch = $config->fetch();
+$nch = $config->nch();
 $fetch_offset = $config->fetch_offset();
 $fetch_smear = $config->fetch_smear();
-$nch_smear   = $config->nch_smear();
-$facility   = $config->facility();
-$pidfile   = $config->pidfile();
-$hostname   = $config->hostname();
+$nch_smear = $config->nch_smear();
+$facility = $config->facility();
+$pidfile = $config->pidfile();
+$hostname = $config->hostname();
 
 
 $s = new IO::Select;
