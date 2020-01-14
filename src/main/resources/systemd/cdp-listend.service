@@ -1,0 +1,14 @@
+[Unit]
+Description=Daemon listening for CDP notifications
+After=network.target
+After=network-online.target
+Before=shutdown.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/cdp-listend --nofork
+KillMode=process
+PIDFile=/var/run/cdp-listend.pid
+
+[Install]
+WantedBy=multi-user.target

@@ -45,7 +45,7 @@ my $fetch_smear = undef;
 my $nch_smear = undef;
 my $facility = undef;
 my $pidfile = undef;
-my $hostname;
+my $nofork = undef;
 
 my $fetch_def  = "/usr/sbin/ccm-fetch";
 my $nch_def    = "/usr/sbin/cdbsync-nch";
@@ -72,6 +72,7 @@ $config->define("help|h!",
         "nch_smear=i",{DEFAULT=>$nch_smear_def},
         "facility=s", {DEFAULT=>"daemon"},
         "pidfile=s", {DEFAULT=>"/var/run/cdp-listend.pid"},
+        "nofork", {DEFAULT=>0},
         "hostname=s", {DEFAULT=>$hostname_def},
          );
 if (!($config->getopt()) || $config->get("help")) {
@@ -85,6 +86,7 @@ print "usage: $0 [OPTIONS]
   --fetch_smear=SECONDS   fetch run smearing time
   --nch_smear=SECONDS     nch run smearing time
   --pidfile=FILE          write PID to FILE
+  --nofork                do not fork into the background
   --hostname=fqdn         hostname/IP to listen on\n";
   exit(1);
 }
@@ -95,15 +97,16 @@ if (-f $config->config()) {
     $config->file($config->config());
 }
 
-$port        = $config->port();
-$fetch       = $config->fetch();
-$nch         = $config->nch();
+$port = $config->port();
+$fetch = $config->fetch();
+$nch = $config->nch();
 $fetch_offset = $config->fetch_offset();
 $fetch_smear = $config->fetch_smear();
-$nch_smear   = $config->nch_smear();
-$facility   = $config->facility();
-$pidfile   = $config->pidfile();
-$hostname   = $config->hostname();
+$nch_smear = $config->nch_smear();
+$facility = $config->facility();
+$pidfile = $config->pidfile();
+$nofork = $config->nofork();
+$hostname = $config->hostname();
 
 
 $s = new IO::Select;
@@ -136,14 +139,16 @@ unless ($ip1=IO::Socket::INET->new(LocalPort => $port, Proto=>'udp',
 $s->add($ip1);
 
 
-$pid = fork;
-exit if $pid;
-if(!(defined($pid))) {
-    logit('err',"Exiting: daemon couldn't fork: $!");
-    die "Daemon couldn't fork: $!";
+unless ($nofork) {
+    $pid = fork;
+    exit if $pid;
+    if(!(defined($pid))) {
+        logit('err',"Exiting: daemon couldn't fork: $!");
+        die "Daemon couldn't fork: $!";
+    }
+    POSIX::setsid();
+    exit if fork();
 }
-POSIX::setsid();
-exit if fork();
 
 # Save the PID.
 if ( $pidfile ) {
