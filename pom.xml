@@ -66,6 +66,10 @@
             <summary>Configuration Distribution Protocol client daemon</summary>
             <name>${project.artifactId}</name>
             <url>https://github.com/quattor/cdp-listend/tree/master</url>
+            <requires>
+              <require>crontabs</require>
+              <require>logrotate</require>
+            </requires>
             <preinstallScriptlet>
               <script><![CDATA[
         if [ "$1" -eq 2 ]; then  # upgrade
