@@ -197,7 +197,7 @@
                 </sources>
               </mapping>
               <mapping>
-                <directory>/usr/quattor/scripts</directory>
+                <directory>/usr/share/quattor</directory>
                 <filemode>755</filemode>
                 <documentation>false</documentation>
                 <directoryIncluded>false</directoryIncluded>
