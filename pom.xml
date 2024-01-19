@@ -69,6 +69,7 @@
             <requires>
               <require>crontabs</require>
               <require>logrotate</require>
+              <require>chkconfig</require>
             </requires>
             <preinstallScriptlet>
               <script><![CDATA[
