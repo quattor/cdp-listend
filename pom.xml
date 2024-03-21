@@ -86,44 +86,28 @@
             <postinstallScriptlet>
               <script><![CDATA[
         if [ "$1" -eq 1 ]; then  # first install
-                if [ -x /bin/systemctl ]; then
-                        /bin/systemctl preset ${project.artifactId}.service > /dev/null 2>&1 || :
-                else
-                        /sbin/chkconfig --add ${project.artifactId}
-                fi
+                /bin/systemctl preset ${project.artifactId}.service > /dev/null 2>&1 || :
         elif [ "$1" -eq 2 ]; then  # upgrade
-                if [ -x /bin/systemctl ]; then
-                        /bin/systemctl daemon-reload > /dev/null 2>&1 || :
+                /bin/systemctl daemon-reload > /dev/null 2>&1 || :
 
-                        # Calling 'preset' here is arguably wrong, but not doing it could leave
-                        # the daemon disabled when upgrading from the init script version
-                        /bin/systemctl preset ${project.artifactId}.service > /dev/null 2>&1 || :
+                # Calling 'preset' here is arguably wrong, but not doing it could leave
+                # the daemon disabled when upgrading from the init script version
+                /bin/systemctl preset ${project.artifactId}.service > /dev/null 2>&1 || :
 
-                        /bin/systemctl restart ${project.artifactId} > /dev/null 2>&1 || :
-                else
-                        /sbin/chkconfig --add ${project.artifactId}
-                        /sbin/service ${project.artifactId} restart > /dev/null 2>&1 || :
-                fi
+                /bin/systemctl restart ${project.artifactId} > /dev/null 2>&1 || :
         fi
               ]]></script>
             </postinstallScriptlet>
             <preremoveScriptlet>
               <script><![CDATA[
         if [ "$1" -eq 0 ]; then  # Uninstall rather than upgrade
-                # Do not stop the service as the uninstall may happen from within the service...
-                if [ -x /bin/systemctl ]; then
-                        /bin/systemctl --no-reload disable ${project.artifactId}.service > /dev/null 2>&1 || :
-                else
-                        /sbin/chkconfig --del ${project.artifactId}
-                fi
+                /bin/systemctl --no-reload disable ${project.artifactId}.service > /dev/null 2>&1 || :
         fi
               ]]></script>
             </preremoveScriptlet>
             <postremoveScriptlet>
               <script><![CDATA[
-        if [ -x /bin/systemctl ]; then
-                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-        fi
+        /bin/systemctl daemon-reload >/dev/null 2>&1 || :
               ]]></script>
             </postremoveScriptlet>
             <mappings combine.self="override">
