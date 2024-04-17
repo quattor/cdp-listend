@@ -129,16 +129,6 @@
               <mapping>
                 <sources>
                   <source>
-                    <location>${project.build.directory}/daemon</location>
-                  </source>
-                </sources>
-                <directory>/etc/init.d</directory>
-                <filemode>755</filemode>
-                <directoryIncluded>false</directoryIncluded>
-              </mapping>
-              <mapping>
-                <sources>
-                  <source>
                     <location>${project.build.directory}/systemd/${project.artifactId}.service</location>
                   </source>
                 </sources>
