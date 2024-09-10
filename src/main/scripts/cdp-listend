@@ -192,23 +192,23 @@ while($ip1->recv($newmsg,1024)) {
     my $ntype = $1;
     my $time  = $2;
     logit('info',"Received UDP packet ($ntype|$time) from $r_host");
-    # time extraction!
-    if ($ntype eq"ccm") {
-        my $smear = int(rand($fetch_smear));
-        my $delay = $smear + $fetch_offset;
-        logit('info', "$fetch will be called in $delay seconds (offset=$fetch_offset, smear=$smear)");
-        sleep($delay);
-        logit('info', "Calling $fetch with unix time $time (after $delay seconds)");
-        system ("$fetch --profile-time=$time") == 0
-            or logit('err',"[ERROR] call of ccm-fetch ($fetch) failed: $!");
+    if ($ntype eq "ccm") {
+        my $delay = int(rand($fetch_smear)) + $fetch_offset;
+        call_handler($fetch, "--profile-time=$time", $delay);
     } elsif ($ntype eq "cdb") {
-        my $smear = int(rand($nch_smear));
-        logit('info', "$nch will be called in $smear seconds");
-        sleep($smear);
-        logit('info', "Calling $nch with unix time $time (after $smear seconds)");
-        system ("$nch") == 0
-            or logit('err',"[ERROR] call of cdbsync-nch ($nch) failed: $!");
+        my $delay = int(rand($nch_smear));
+        call_handler($nch, "", $delay);
+    } else {
+        logit('err', "[ERROR] Ignoring packet, unknown notification type");
     }
+}
+
+sub call_handler {
+    my ($handler, $handler_args, $delay) = @_;
+    logit('info', "$handler will be called in $delay seconds");
+    sleep($delay);
+    logit('info', "Calling $handler now");
+    system ("$handler $handler_args") == 0 or logit('err',"[ERROR] call of $handler failed: $!");
 }
 
 sub logit {
